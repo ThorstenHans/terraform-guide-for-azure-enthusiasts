@@ -1,5 +1,5 @@
 provider "azurerm" {
-  version = "=1.22.0"
+  version = "~> 1.27"
 }
 
 resource "azurerm_resource_group" "resg" {
@@ -30,14 +30,19 @@ resource "azurerm_app_service_plan" "appsvcplan" {
   }
 }
 
+resource "random_integer" "rnd_suffix" {
+  min = 1
+  max = 50000
+}
+
 resource "azurerm_app_service" "appsvc" {
-  name                = "terraform-app-linux-app-svc"
+  name                = "terraform-app-linux-app-svc${random_integer.rnd_suffix.result}"
   resource_group_name = "${azurerm_resource_group.resg.name}"
   app_service_plan_id = "${azurerm_app_service_plan.appsvcplan.id}"
   location            = "${azurerm_resource_group.resg.location}"
   tags                = "${var.tags}"
 
-  app_settings {
+  app_settings = {
     WEBSITES_ENABLE_APP_SERVICE_STORAGE = false
   }
 
